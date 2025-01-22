@@ -1,9 +1,20 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebApplication.Data;
+var  myAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 var builder = Microsoft.AspNetCore.Builder.WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: myAllowSpecificOrigins,
+        policy  =>
+        {
+            policy.WithOrigins("*")
+                .AllowAnyMethod() // Allow any HTTP method
+                .AllowAnyHeader(); 
+        });
+});
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDbContext>(
     options => options.UseSqlite("Data Source=Application.db"));
@@ -32,5 +43,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseCors(myAllowSpecificOrigins);
 
 app.Run();
