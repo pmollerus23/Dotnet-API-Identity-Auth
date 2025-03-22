@@ -1,6 +1,9 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebApplication.DTOs;
+using WebApplication.Models.Users;
+using WebApplication.Services;
 
 namespace WebApplication.Controllers;
 
@@ -9,29 +12,78 @@ namespace WebApplication.Controllers;
 [Route("api/[controller]")]
 public class UserController : ControllerBase
 {
-    // private readonly IUserService _userService;
-    // private readonly ILogger<UserController> _logger;
-    //
-    // public UserController(ILogger<UserController> logger, IUserService userService)
-    // {
-    //     _logger = logger;
-    //     _userService = userService;
-    // }
-    
-    public IActionResult GetUserId()
-    {
-        // Access the claims from the current HttpContext
-        var userIdClaim = User.FindFirst(ClaimTypes.Name);
+    private readonly IApplicationUserService _applicationUserService;
 
-        if (userIdClaim != null)
-        {
-            // The User ID (usually GUID or string) from the token's claim
-            return Ok(new { UserId = userIdClaim.Value });
-        }
-        else
-        {
-            return Unauthorized("User ID claim not found.");
-        }
+    public UserController(IApplicationUserService applicationUserService)
+    {
+        _applicationUserService = applicationUserService;
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetApplicationUser()
+    {
+        // Access the claims from the current HttpContext
+        // var userName = User.FindFirst(ClaimTypes.Name);
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null)
+        {
+            return NotFound(new
+            {
+                status = "error",
+                message = "Account not found",
+                code = "ACCOUNT_NOT_FOUND"
+            });
+        }
+
+        ApplicationUser? user = await _applicationUserService.GetByIdentityUserIdAsync(userId);
+        if (user == null)
+        {
+            return NotFound(new
+            {
+                status = "error",
+                message = "Profile does not exist for this user",
+                code = "PROFILE_NOT_EXIST"
+            });
+        }
+
+        return Ok(new
+        {
+            FirstName = user.FirstName,
+            LastName = user.LastName
+        });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SetApplicationUser(AppUserDto appUserDto)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null)
+        {
+            return NotFound(new
+            {
+                status = "error",
+                message = "Account not found",
+                code = "ACCOUNT_NOT_FOUND"
+            });
+        }
+        ApplicationUser? appUser = await _applicationUserService.GetByIdentityUserIdAsync(userId);
+        if (appUser == null)
+        {
+            var result = await _applicationUserService.CreateAppUserAsync(appUserDto, userId);
+            return Ok(new
+                {
+                    FirstName = result.FirstName,
+                    LastName = result.LastName
+                }
+                );
+        }
+        var result1 = await _applicationUserService.UpdateAppUserAsync(appUserDto, userId);
+        return Ok(new
+        {
+            FirstName = result1.FirstName,
+            LastName = result1.LastName
+        });
+    }
+    
 }
