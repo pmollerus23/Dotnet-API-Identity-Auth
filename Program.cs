@@ -22,7 +22,7 @@ builder.Services.AddCors(options =>
 
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDbContext>(
-    options => options.UseSqlite("Data Source=Users.db"));
+    options => options.UseSqlite("Data Source=Application.db"));
 
 builder.Services.AddAuthorization();
 
