@@ -1,4 +1,6 @@
+using System.Reflection.Metadata.Ecma335;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication.DTOs;
@@ -84,6 +86,28 @@ public class UserController : ControllerBase
             FirstName = result1.FirstName,
             LastName = result1.LastName
         });
+    }
+
+    [HttpGet("friends")]
+    public async Task<IActionResult> GetUserFriends() {
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (userId == null)
+        {
+            return NotFound(new
+            {
+                status = "error",
+                message = "Account not found",
+                code = "ACCOUNT_NOT_FOUND"
+            });
+        }
+
+        ICollection<UserFriendShip>? friendships = await _applicationUserService.GetUserFriendships(userId);
+
+        
+
+        return Ok("Here are your friends");
     }
     
 }

@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using Microsoft.EntityFrameworkCore;
 using WebApplication.Data;
 using WebApplication.DTOs;
@@ -38,6 +39,7 @@ public class ApplicationUserService : IApplicationUserService
 
     public async Task<ApplicationUser> UpdateAppUserAsync(AppUserDto appUserDto, string userId)
     {
+        // TODO - Use AutoMapper here
         var existingUser = _context.ApplicationUsers.FirstOrDefault(au => au.IdentityUserId == userId);
         if (existingUser != null)
         {
@@ -52,5 +54,15 @@ public class ApplicationUserService : IApplicationUserService
         }
         // _context.ApplicationUsers.Update(existingUser);
         return existingUser;
+    }
+
+    public async Task<ICollection<UserFriendShip>> GetUserFriendships(string identityId)
+    {
+        var friends = await _context.UserFriendships
+        .Where(f => f.User1Id == identityId || f.User2Id == identityId)
+        // .Select(f => f.User1Id == identityId ? f.User2 : f.User1)
+        .ToListAsync();
+
+    return friends;
     }
 }

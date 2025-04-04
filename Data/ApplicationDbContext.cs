@@ -9,6 +9,7 @@ namespace WebApplication.Data;
 public class ApplicationDbContext : IdentityDbContext<IdentityUser>
 {
     public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+    public DbSet<UserFriendShip> UserFriendships { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) :
         base(options)
@@ -43,5 +44,11 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
             entity.Property(e => e.PhoneNumber)
                 .HasMaxLength(40);
         });
+
+        builder.Entity<UserFriendShip>()
+        .HasKey(f => new { f.User1Id, f.User2Id });
+        
+        builder.Entity<UserFriendShip>().ToTable(t => t
+        .HasCheckConstraint("CK_Friendship_User1Id_LessThan_User2Id", "User1Id < User2Id"));
     }
 }

@@ -6,8 +6,6 @@ namespace WebApplication.Models.Users;
 
 public class ApplicationUser
 {
-
-    
     [Key]  // This is the primary key
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
@@ -24,4 +22,9 @@ public class ApplicationUser
     [MaxLength(40)] public string? PhoneNumber { get; set; }
 
     public virtual IdentityUser IdentityUser { get; set; }
+
+    // Navigation properties for friendships
+    public virtual ICollection<UserFriendShip> User1Friendships { get; set; } = new List<UserFriendShip>();  // Friendships where the user is User1
+    public virtual ICollection<UserFriendShip> User2Friendships { get; set; } = new List<UserFriendShip>();  // Friendships where the user is User2
+
 }
