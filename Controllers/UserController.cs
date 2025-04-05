@@ -103,10 +103,10 @@ public class UserController : ControllerBase
             });
         }
 
-        ICollection<UserFriendShip>? friendships = await _applicationUserService
+        ICollection<Friendship>? friendships = await _applicationUserService
         .GetUserFriendships(userId);
 
-        if (friendships == null) {
+        if (!friendships.Any()) {
             return Ok(new {
                 status = "warning",
                 message = "User has no friends",

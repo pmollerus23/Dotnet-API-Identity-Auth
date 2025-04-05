@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebApplication.Models.Users;
 
-public class UserFriendShip
+public class Friendship
 {
     [Key]
     [Column(Order = 0)]
@@ -15,9 +15,7 @@ public class UserFriendShip
     public FriendshipStatus Status { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
-    [ForeignKey("User1Id")]
     public virtual ApplicationUser User1 { get; set; }
-    [ForeignKey("User2Id")]
     public virtual ApplicationUser User2 { get; set; }
 }
 

@@ -9,7 +9,7 @@ namespace WebApplication.Data;
 public class ApplicationDbContext : IdentityDbContext<IdentityUser>
 {
     public DbSet<ApplicationUser> ApplicationUsers { get; set; }
-    public DbSet<UserFriendShip> UserFriendships { get; set; }
+    public DbSet<Friendship> Friendships { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) :
         base(options)
@@ -22,18 +22,14 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
 
         builder.Entity<ApplicationUser>(entity =>
         {
-            // entity.HasKey(e => e.Id);
-
-            entity.HasKey(e => e.Id);
-            // .IsRequired();
-
-            entity.Property(e => e.Id).IsRequired();
-
+            entity.HasKey(e => e.IdentityUserId);
+     
             // Configure one-to-one relationship with IdentityUser
             entity.HasOne(au => au.IdentityUser)
                 .WithOne()
                 .HasForeignKey<ApplicationUser>(au => au.IdentityUserId)
-                .IsRequired();
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
 
             entity.Property(e => e.FirstName)
                 .HasMaxLength(20);
@@ -45,10 +41,35 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
                 .HasMaxLength(40);
         });
 
-        builder.Entity<UserFriendShip>()
-        .HasKey(f => new { f.User1Id, f.User2Id });
+        builder.Entity<ApplicationUser>()
+            .HasMany(u => u.FriendshipsAsUser1)
+            .WithOne(f => f.User1)
+            .HasForeignKey(f => f.User1Id);
+
+    builder.Entity<ApplicationUser>()
+        .HasMany(u => u.FriendshipsAsUser2)
+        .WithOne(f => f.User2)
+        .HasForeignKey(f => f.User2Id);
+
+        // Composite key for Friendship table
+        builder.Entity<Friendship>()
+            .HasKey(f => new { f.User1Id, f.User2Id });
+
+        // Relationship configuration: User1
+        builder.Entity<Friendship>()
+            .HasOne(f => f.User1)
+            .WithMany(u => u.FriendshipsAsUser1)
+            .HasForeignKey(f => f.User1Id)
+            .OnDelete(DeleteBehavior.Restrict);  // Adjust based on your needs
+
+        // Relationship configuration: User2
+        builder.Entity<Friendship>()
+            .HasOne(f => f.User2)
+            .WithMany(u => u.FriendshipsAsUser2)
+            .HasForeignKey(f => f.User2Id)
+            .OnDelete(DeleteBehavior.Restrict);  // Adjust based on your needs
         
-        builder.Entity<UserFriendShip>().ToTable(t => t
+        builder.Entity<Friendship>().ToTable(t => t
         .HasCheckConstraint("CK_Friendship_User1Id_LessThan_User2Id", "User1Id < User2Id"));
     }
 }

@@ -56,9 +56,9 @@ public class ApplicationUserService : IApplicationUserService
         return existingUser;
     }
 
-    public async Task<ICollection<UserFriendShip>> GetUserFriendships(string identityId)
+    public async Task<ICollection<Friendship>> GetUserFriendships(string identityId)
     {
-        var friends = await _context.UserFriendships
+        var friends = await _context.Friendships
         .Where(f => f.User1Id == identityId || f.User2Id == identityId)
         // .Select(f => f.User1Id == identityId ? f.User2 : f.User1)
         .ToListAsync();

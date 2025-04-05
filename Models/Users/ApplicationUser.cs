@@ -1,15 +1,17 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebApplication.Models.Users;
 
 public class ApplicationUser
 {
-    [Key]  // This is the primary key
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
+    // [Key]  // This is the primary key
+    // [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    // public int Id { get; set; }
     
+    [Key]  // This is the primary key
     [MaxLength(255)]
     public required string IdentityUserId { get; set; }
 
@@ -21,10 +23,12 @@ public class ApplicationUser
 
     [MaxLength(40)] public string? PhoneNumber { get; set; }
 
+
+    // Navigation Properties
     public virtual IdentityUser IdentityUser { get; set; }
 
-    // Navigation properties for friendships
-    public virtual ICollection<UserFriendShip> User1Friendships { get; set; } = new List<UserFriendShip>();  // Friendships where the user is User1
-    public virtual ICollection<UserFriendShip> User2Friendships { get; set; } = new List<UserFriendShip>();  // Friendships where the user is User2
+    // Navigation properties to friendships
+    public virtual ICollection<Friendship> FriendshipsAsUser1 { get; set; }
+    public virtual ICollection<Friendship> FriendshipsAsUser2 { get; set; }
 
 }
