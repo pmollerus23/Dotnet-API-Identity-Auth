@@ -482,4 +482,6 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
-Application.db
+*Application.db*
+Migrations/
+obj/Debug/net9.0/WebApplication.sourcelink.json

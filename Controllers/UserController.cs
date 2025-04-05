@@ -103,11 +103,18 @@ public class UserController : ControllerBase
             });
         }
 
-        ICollection<UserFriendShip>? friendships = await _applicationUserService.GetUserFriendships(userId);
+        ICollection<UserFriendShip>? friendships = await _applicationUserService
+        .GetUserFriendships(userId);
 
-        
+        if (friendships == null) {
+            return Ok(new {
+                status = "warning",
+                message = "User has no friends",
+                code = "HAS_NO_FRIENDS"
+            });
+        }
 
-        return Ok("Here are your friends");
+        return Ok(friendships);
     }
     
 }
