@@ -1,12 +1,11 @@
-using System.Reflection.Metadata.Ecma335;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication.DTOs;
 using WebApplication.Models.Users;
 using WebApplication.Services;
 using WebApplication.Exceptions;
+using System.Data;
 
 namespace WebApplication.Controllers;
 
@@ -104,8 +103,8 @@ public class UserController : ControllerBase
             });
         }
 
-        ICollection<Friendship>? friendships = await _applicationUserService
-        .GetUserFriendships(userId);
+        ICollection<FriendshipDto>? friendships = await _applicationUserService
+            .GetUserFriendships(userId);
 
         if (!friendships.Any()) {
             return Ok(new {
@@ -137,6 +136,8 @@ public class UserController : ControllerBase
         } catch (FriendshipAlreadyExistsException)
         {
             return Conflict("Friendship already exists");
+        } catch (InvalidConstraintException) {
+            return BadRequest("user cannot add itself as a friend");
         }
         return Ok();
     }

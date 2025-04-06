@@ -58,11 +58,19 @@ public class ApplicationUserService : IApplicationUserService
         return existingUser;
     }
 
-    public async Task<ICollection<Friendship>> GetUserFriendships(string identityId)
+    public async Task<ICollection<FriendshipDto>> GetUserFriendships(string identityId)
     {
         var friends = await _context.Friendships
         .Where(f => f.User1Id == identityId || f.User2Id == identityId)
-        // .Select(f => f.User1Id == identityId ? f.User2 : f.User1)
+        .Include(f => f.User1)
+        .Include(f => f.User2)
+        .Select(f => new FriendshipDto {
+            User1Email = f.User1.IdentityUser.Email,
+            User2Email = f.User2.IdentityUser.Email,
+            User1Status = f.User1Status,
+            User2Status = f.User2Status,
+            UpdatedAt = f.UpdatedAt
+        })
         .ToListAsync();
 
     return friends;
@@ -85,9 +93,10 @@ public class ApplicationUserService : IApplicationUserService
         {
             User1Id = senderId.CompareTo(existingUser.IdentityUserId) < 0 ? senderId : existingUser.IdentityUserId,
             User2Id = senderId.CompareTo(existingUser.IdentityUserId) < 0 ? existingUser.IdentityUserId : senderId,
-            Status = FriendshipStatus.Pending,
+            User1Status = senderId.CompareTo(existingUser.IdentityUserId) < 0 ? FriendshipStatus.Approved : FriendshipStatus.Pending,
+            User2Status = senderId.CompareTo(existingUser.IdentityUserId) < 0 ? FriendshipStatus.Pending : FriendshipStatus.Approved,
             CreatedAt = DateTime.UtcNow,
-            UpdatedAt = null
+            UpdatedAt = DateTime.UtcNow
         });
         
         try

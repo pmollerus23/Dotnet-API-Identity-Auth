@@ -485,3 +485,7 @@ $RECYCLE.BIN/
 *Application.db*
 Migrations/
 obj/Debug/net9.0/WebApplication.sourcelink.json
+Migrations/ApplicationDbContextModelSnapshot.cs
+Migrations/20250324165939_InitialCreate.Designer.cs
+Migrations/20250324165939_InitialCreate.cs
+Migrations/ApplicationDbContextModelSnapshot.cs

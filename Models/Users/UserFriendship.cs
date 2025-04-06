@@ -12,7 +12,9 @@ public class Friendship
     [Column(Order = 1)]
     public string User2Id { get; set; }
     [Required]
-    public FriendshipStatus Status { get; set; }
+    public FriendshipStatus User1Status { get; set; }
+    public FriendshipStatus User2Status { get; set; }
+
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public virtual ApplicationUser User1 { get; set; }
