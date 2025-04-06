@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Data;
 using Microsoft.EntityFrameworkCore;
 using WebApplication.Data;
 using WebApplication.DTOs;
@@ -64,5 +65,35 @@ public class ApplicationUserService : IApplicationUserService
         .ToListAsync();
 
     return friends;
+    }
+
+    public async Task<int?> AddFriendAsync(string senderId, string recipientEmail)
+    {
+        var existingUser = await _context.ApplicationUsers
+        .FirstOrDefaultAsync(u => u.IdentityUser.Email == recipientEmail);
+          if (existingUser == null)
+    {
+        // If recipient doesn't exist, return a not found response
+        return null;
+
+    } else if (existingUser.IdentityUserId == senderId) {
+        throw new InvalidConstraintException("user object cannot be a friend of itself");
+    }
+
+        var result = await _context.Friendships.AddAsync(new Friendship
+        {
+            User1Id = senderId.CompareTo(existingUser.IdentityUserId) < 0 ? senderId : existingUser.IdentityUserId,
+            User2Id = senderId.CompareTo(existingUser.IdentityUserId) < 0 ? existingUser.IdentityUserId : senderId,
+            Status = FriendshipStatus.Pending,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = null
+        });
+        // return result.State;
+        try {
+        return await _context.SaveChangesAsync();
+
+        } catch (DbUpdateException e) {
+            throw;
+        }
     }
 }

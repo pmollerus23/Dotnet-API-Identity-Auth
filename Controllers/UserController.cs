@@ -116,5 +116,23 @@ public class UserController : ControllerBase
 
         return Ok(friendships);
     }
+
+    [HttpPost("friends")]
+    public async Task<IActionResult> AddFriend([FromForm] string recipientEmail) 
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null)
+        {
+            return NotFound(new
+            {
+                status = "error",
+                message = "Account not found",
+                code = "ACCOUNT_NOT_FOUND"
+            });
+        }
+
+        var result = await _applicationUserService.AddFriendAsync(userId, recipientEmail);
+        return Ok();
+    }
     
 }

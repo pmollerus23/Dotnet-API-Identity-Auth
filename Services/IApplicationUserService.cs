@@ -9,4 +9,6 @@ public interface IApplicationUserService
     Task<ApplicationUser> GetByIdentityUserIdAsync(string identityId);
     Task<ApplicationUser> UpdateAppUserAsync(AppUserDto applicationUser, string userId);
     Task<ICollection<Friendship>> GetUserFriendships(string identityId);
+    Task<int?> AddFriendAsync(string senderId, string recipientEmail);
+
 }
