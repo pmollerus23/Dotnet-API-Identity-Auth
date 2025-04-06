@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using WebApplication.DTOs;
 using WebApplication.Models.Users;
 using WebApplication.Services;
+using WebApplication.Exceptions;
 
 namespace WebApplication.Controllers;
 
@@ -131,7 +132,12 @@ public class UserController : ControllerBase
             });
         }
 
-        var result = await _applicationUserService.AddFriendAsync(userId, recipientEmail);
+        try {
+            var result = await _applicationUserService.AddFriendAsync(userId, recipientEmail);
+        } catch (FriendshipAlreadyExistsException)
+        {
+            return Conflict("Friendship already exists");
+        }
         return Ok();
     }
     

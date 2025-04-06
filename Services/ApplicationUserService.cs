@@ -1,9 +1,10 @@
-using System.Collections.ObjectModel;
 using System.Data;
 using Microsoft.EntityFrameworkCore;
 using WebApplication.Data;
 using WebApplication.DTOs;
 using WebApplication.Models.Users;
+using Microsoft.Data.Sqlite;
+using WebApplication.Exceptions;
 
 namespace WebApplication.Services;
 
@@ -88,10 +89,17 @@ public class ApplicationUserService : IApplicationUserService
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = null
         });
-        // return result.State;
-        try {
+        
+        try
+        {
             return await _context.SaveChangesAsync();
-        } catch (DbUpdateException e) {
+        }
+        catch (DbUpdateException e) when (e.InnerException is SqliteException sqliteEx && sqliteEx.SqliteExtendedErrorCode == 1555)
+        {
+            throw new FriendshipAlreadyExistsException("This friendship already exists", sqliteEx);
+        }
+        catch
+        {
             throw;
         }
     }
