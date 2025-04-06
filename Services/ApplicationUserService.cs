@@ -90,8 +90,7 @@ public class ApplicationUserService : IApplicationUserService
         });
         // return result.State;
         try {
-        return await _context.SaveChangesAsync();
-
+            return await _context.SaveChangesAsync();
         } catch (DbUpdateException e) {
             throw;
         }
